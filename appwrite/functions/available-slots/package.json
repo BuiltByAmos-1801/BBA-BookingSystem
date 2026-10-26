@@ -1,0 +1,12 @@
+{
+  "name": "built-by-amos-available-slots",
+  "private": true,
+  "type": "module",
+  "main": "src/main.js",
+  "scripts": {
+    "start": "node src/main.js"
+  },
+  "dependencies": {
+    "node-appwrite": "^31.0.0"
+  }
+}
