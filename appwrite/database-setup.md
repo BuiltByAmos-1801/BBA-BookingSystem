@@ -69,7 +69,7 @@ TURNSTILE_SITE_KEY=<cloudflare-turnstile-public-site-key>
 TURNSTILE_SECRET_KEY=<cloudflare-turnstile-secret>
 ```
 
-If Turnstile is not configured, omit both Function variables and `VITE_TURNSTILE_SITE_KEY`. The server then accepts submissions without CAPTCHA. If a frontend site key is enabled, the server must also have both matching Function variables; a missing/mismatched pair causes submissions to fail closed. Add the local and deployed hostnames to the Turnstile widget configuration.
+Set `TURNSTILE_ENABLED=true` in `create-booking` when configuring those keys. If Turnstile is not configured, set `TURNSTILE_ENABLED=false`, omit both key variables, and leave `VITE_TURNSTILE_SITE_KEY` blank. The server then accepts submissions without CAPTCHA. A missing flag or mismatched key/flag setup causes submissions to fail closed. Add the local and deployed hostnames to the Turnstile widget configuration.
 
 Set the Functions to Node.js 22, `src/main.js` entrypoint, `npm install` build command, and **Execute access: Any** because the booking page has no login. Also add the exact frontend origins to Appwrite **Platforms → Web** and to each Function's `ALLOWED_ORIGINS`.
 

@@ -41,7 +41,7 @@ if (-not (Test-Path .env.local)) { throw '.env.local was not created.' }
 notepad .env.local
 ```
 
-The existing `.env.example` preserves the project, endpoint, and Function IDs already present in the workspace. The Table ID is blank because no Table ID was present in the project. Fill that value from the Appwrite Console; do not use the old collection ID as a table ID. `.env.local` is not present in this workspace. The copy command above creates it only if absent and never overwrites it. If it already exists, edit it only after reviewing its current values.
+The existing `.env.example` preserves the project, endpoint, and Function IDs already present in the workspace. The Table ID is blank because no Table ID was present in the project. Fill that value from the Appwrite Console; do not use the old collection ID as a table ID. To run without CAPTCHA, clear `VITE_TURNSTILE_SITE_KEY`; if you keep the configured site key, enable Turnstile in the Function with its matching secret. `.env.local` is not present in this workspace. The copy command above creates it only if absent and never overwrites it. If it already exists, edit it only after reviewing its current values.
 
 The browser invokes only Appwrite Functions; it does not use the database or Table ID directly. `VITE_APPWRITE_DATABASE_ID` and `VITE_APPWRITE_BOOKINGS_TABLE_ID` are included as public reference values for setup, while the actual database/table IDs must also be configured as `APPWRITE_DATABASE_ID` and `APPWRITE_BOOKINGS_TABLE_ID` in both Functions. No Appwrite API key or Turnstile secret may be stored in a `VITE_` variable.
 
@@ -66,12 +66,13 @@ Set the Function environment variables in the Console, not in Vite:
 | `APPWRITE_DATABASE_ID` | Yes | |
 | `APPWRITE_BOOKINGS_TABLE_ID` | Yes | |
 | `ALLOWED_ORIGINS` | Yes | |
+| `TURNSTILE_ENABLED` | | Yes |
 | `TURNSTILE_SITE_KEY` | | Optional |
 | `TURNSTILE_SECRET_KEY` | | Optional |
 
 `ALLOWED_ORIGINS` is a comma-separated exact-origin list, for example `http://localhost:5173,https://your-preview.vercel.app`. Add the final Vercel production origin after deployment. The Functions reject a mismatched `Origin`; also add local and deployed origins under the Appwrite project's **Platforms → Web** settings.
 
-Create a server API key with only the TablesDB read and row write scopes required by these Functions. Store it only as `APPWRITE_API_KEY` in each Function's environment. Never expose it to Vite, Vercel's frontend build variables, or source control. Set both Turnstile keys in the create-booking Function if `VITE_TURNSTILE_SITE_KEY` is configured; omit both on the Function to leave CAPTCHA disabled. Supplying only one server-side key is a configuration error and booking requests fail closed.
+Create a server API key with only the TablesDB read and row write scopes required by these Functions. Store it only as `APPWRITE_API_KEY` in each Function's environment. Never expose it to Vite, Vercel's frontend build variables, or source control. In the create-booking Function, set `TURNSTILE_ENABLED=true` and both Turnstile keys if `VITE_TURNSTILE_SITE_KEY` is configured. To disable CAPTCHA, set `TURNSTILE_ENABLED=false`, omit both Function keys, and leave `VITE_TURNSTILE_SITE_KEY` blank. Missing or mismatched settings fail closed.
 
 ### Deploy with the Appwrite CLI
 
@@ -97,7 +98,7 @@ There is no `appwrite.config.json` or existing deployment metadata in this works
 
 ## Run and build locally
 
-After Appwrite project origin settings, collection, Functions, and environment variables are configured:
+After Appwrite project origin settings, Table, Functions, and environment variables are configured:
 
 ```powershell
 npm.cmd run dev
@@ -133,7 +134,7 @@ Add these variables in the new Vercel project's **Settings → Environment Varia
 
 Do not add `APPWRITE_API_KEY` or `TURNSTILE_SECRET_KEY` to Vercel: those belong only in Appwrite Function variables. Add the Vercel preview origin to `ALLOWED_ORIGINS`, Appwrite Web platforms, and the Turnstile allowed-hostname list before testing that preview. Update the origin lists again when Vercel assigns the production URL.
 
-Turnstile keys are optional as a pair. If a site key is set in Vercel, configure the matching public `TURNSTILE_SITE_KEY` and secret `TURNSTILE_SECRET_KEY` in the `create-booking` Function before accepting real bookings.
+Turnstile is optional. If a site key is set in Vercel, configure `TURNSTILE_ENABLED=true` and the matching public `TURNSTILE_SITE_KEY` and secret `TURNSTILE_SECRET_KEY` in the `create-booking` Function before accepting real bookings. If disabled, set `TURNSTILE_ENABLED=false` in that Function and leave its site/secret keys and the Vercel site key blank.
 
 Deploy preview and production:
 
@@ -157,33 +158,32 @@ Verify the production build, Function syntax, and the local no-configuration beh
 - [ ] Disconnecting the network does not show a false confirmation.
 - [ ] Check the mobile layout and keyboard-only form/calendar use.
 - [ ] Verify all required Vercel and Function environment variables are present.
-- [ ] Confirm anonymous direct collection reads and writes are denied.
+- [ ] Confirm anonymous direct Table reads and writes are denied.
 - [ ] If Turnstile is enabled, confirm the Function rejects missing/invalid tokens and accepts a valid token. If disabled, confirm both keys are omitted and submission is allowed without the widget.
 
 Do not mark an item passed until you have actually run it against your configured deployment.
 
 ## Security and privacy notes
 
-- The collection has no anonymous read or write permissions; the browser only executes the public Functions.
+- The Table has no anonymous read or write permissions; the browser only executes the public Functions.
 - Function API keys and Turnstile secrets stay in Appwrite Function environment variables.
 - Function responses contain the booking confirmation fields only, never customer details.
 - Availability responses contain start times only, never customer records.
 - Customer values are bounded, normalized, and validated by the Function before persistence.
-- Turnstile must be configured before launch. Add only actual booking origins in Appwrite and Cloudflare.
+- Configure matching Turnstile keys in Vite and the Function if CAPTCHA is enabled; otherwise explicitly disable it in the Function. Add only actual booking origins in Appwrite and Cloudflare.
 - Function request/response bodies are not logged; logs report execution errors without intentionally including customer input.
-- No rate-limit datastore is included; Turnstile is the public anti-bot control. For higher-volume use, add a persistent rate limiter and operational alerting.
+- No rate-limit datastore is included. If Turnstile is disabled, the public Functions have no CAPTCHA/rate limiting; add a persistent rate limiter before a high-volume public launch.
 
 ## Troubleshooting
 
 - **“Booking is not configured yet”**: check the required Vite variables in `.env.local`, then restart Vite.
-- **No live times / availability service error**: confirm the Function is active, its Node runtime/build succeeded, the collection ID is correct, the indexes exist, and `ALLOWED_ORIGINS` plus Appwrite Web platforms include the current origin.
-- **Booking cannot be confirmed / 503**: check the Function execution logs and verify API-key scopes, IDs, Turnstile secret, and Function deployment state. No success is shown when the write fails.
+- **No live times / availability service error**: confirm the Function is active, its Node runtime/build succeeded, the Table ID is correct, the indexes exist, and `ALLOWED_ORIGINS` plus Appwrite Web platforms include the current origin.
+- **Booking cannot be confirmed / 503**: check the Function execution logs and verify API-key scopes, IDs, `TURNSTILE_ENABLED`, matching CAPTCHA keys if enabled, and Function deployment state. No success is shown when the write fails.
 - **Security verification failed**: verify the Vite site key and Function secret are a matching Turnstile pair, and that the current preview/production hostname is allowed by the Turnstile widget.
-- **Every slot appears unavailable**: check the Function's date window and that the Appwrite server returns the expected `startsAt`, `endsAt`, and `status` values. Only documents with `status = confirmed` occupy a time.
+- **Every slot appears unavailable**: check the Function's date window and that the Appwrite server returns the expected `startsAt`, `endsAt`, and `status` values. Only rows with `status = confirmed` occupy a time.
 - **Duplicate booking conflict**: expected if another request wins the unique `slotKey` index first. Refresh the date's availability and pick a different time.
 - **Build fails on Node version**: use Node 22.12 or newer, then run `npm.cmd install` and `npm.cmd run build`.
 
 ## External configuration still required
 
 Appwrite project/database/Table IDs, Table columns and indexes, Function deployments and deployed source, Function secrets and API-key scopes, project and Function origins, optional Cloudflare Turnstile keys/hostnames, Vercel deployment, and Google Business Profile Booking URL are not marked configured. Values present in `.env.example` came from the existing workspace config; the Table ID remains blank and must be supplied from Appwrite Console.
-"# BBA-BookingSystem" 

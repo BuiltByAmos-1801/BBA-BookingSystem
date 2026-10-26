@@ -1,0 +1,134 @@
+{
+    "organizationId": "6ad75cf4002607f24b59",
+    "projectId": "6adf9dfc00393d103c65",
+    "projectName": "Built By Amos Booking",
+    "endpoint": "https://nyc.cloud.appwrite.io/v1",
+    "settings": {
+        "services": {
+            "account": true,
+            "avatars": true,
+            "databases": true,
+            "locale": true,
+            "health": true,
+            "storage": true,
+            "teams": true,
+            "users": true,
+            "sites": true,
+            "functions": true,
+            "graphql": true,
+            "messaging": true
+        },
+        "protocols": {
+            "rest": true,
+            "graphql": true,
+            "websocket": true
+        },
+        "auth": {
+            "methods": {
+                "jwt": true,
+                "phone": true,
+                "invites": true,
+                "anonymous": true,
+                "email-otp": true,
+                "magic-url": true,
+                "email-password": true
+            },
+            "security": {
+                "duration": 31536000,
+                "limit": null,
+                "sessionsLimit": 10,
+                "passwordHistory": null,
+                "passwordDictionary": false,
+                "personalDataCheck": false,
+                "sessionAlerts": false,
+                "mockNumbers": []
+            }
+        }
+    },
+    "functions": [
+        {
+            "$id": "6adfa2fc00132fa712b6",
+            "name": "Available Slots",
+            "runtime": "node-26",
+            "path": "appwrite/functions/available-slots",
+            "previewDomainTarget": "region",
+            "previewDomainLabel": "availableslots",
+            "entrypoint": "src/main.js",
+            "execute": [
+                "any"
+            ],
+            "enabled": true,
+            "logging": true,
+            "events": [],
+            "schedule": "",
+            "interval": 0,
+            "timeout": 15,
+            "commands": "npm install",
+            "scopes": [
+                "rows.read"
+            ],
+            "installationId": "",
+            "providerRepositoryId": "",
+            "providerBranch": "main",
+            "providerSilentMode": false,
+            "providerRootDirectory": "./",
+            "providerBranches": [],
+            "providerPaths": [],
+            "buildSpecification": "s-2vcpu-2gb",
+            "runtimeSpecification": "s-0.5vcpu-512mb",
+            "deploymentRetention": 0
+        },
+        {
+            "$id": "6adfa37500289aeed7bd",
+            "name": "Create Booking",
+            "runtime": "node-26",
+            "path": "appwrite/functions/create-booking",
+            "previewDomainTarget": "region",
+            "previewDomainLabel": "create-booking",
+            "entrypoint": "src/main.js",
+            "execute": [
+                "any"
+            ],
+            "enabled": true,
+            "logging": true,
+            "events": [],
+            "schedule": "",
+            "interval": 0,
+            "timeout": 15,
+            "commands": "npm install",
+            "scopes": [
+                "rows.read",
+                "rows.write"
+            ],
+            "installationId": "",
+            "providerRepositoryId": "",
+            "providerBranch": "main",
+            "providerSilentMode": false,
+            "providerRootDirectory": "./",
+            "providerBranches": [],
+            "providerPaths": [],
+            "buildSpecification": "s-2vcpu-2gb",
+            "runtimeSpecification": "s-0.5vcpu-512mb",
+            "deploymentRetention": 0
+        }
+    ],
+    "tablesDB": [
+        {
+            "$id": "6adfa0090028209ef27e",
+            "name": "bba-booking-db",
+            "enabled": true
+        }
+    ],
+    "tables": [
+        {
+            "$id": "6adfa24c001e8454ed7e",
+            "$permissions": [],
+            "databaseId": "6adfa0090028209ef27e",
+            "name": "bookings",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [],
+            "indexes": []
+        }
+    ]
+}

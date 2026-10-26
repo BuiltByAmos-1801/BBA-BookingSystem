@@ -64,8 +64,10 @@ export function requestAvailableSlots(date) {
         Number.isFinite(Date.parse(slot.startsAt)),
       );
     if (result.date !== date || result.timezone !== "Asia/Kolkata" || !validSlots) {
-      throw new Error("The availability service returned invalid data. Please try again.");
-    }
+        throw new Error(
+          "The Appwrite availability Function is not deployed with the booking code yet. Deploy the updated Function and try again.",
+        );
+      }
     return result;
   });
 }

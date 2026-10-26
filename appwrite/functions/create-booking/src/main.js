@@ -75,30 +75,46 @@ function getSlot(dateString, time) {
   };
 }
 
-function getConfig() {
+function getConfig(req) {
   const names = [
-    "APPWRITE_ENDPOINT",
-    "APPWRITE_PROJECT_ID",
-    "APPWRITE_API_KEY",
     "APPWRITE_DATABASE_ID",
     "APPWRITE_BOOKINGS_TABLE_ID",
   ];
   const missing = names.filter((name) => !process.env[name]);
   if (missing.length) throw new Error(`Missing Function environment variables: ${missing.join(", ")}`);
+  const turnstileEnabled = process.env.TURNSTILE_ENABLED;
+  if (turnstileEnabled !== "true" && turnstileEnabled !== "false") {
+    throw new Error("TURNSTILE_ENABLED must be explicitly set to true or false");
+  }
   const turnstileSiteKey = process.env.TURNSTILE_SITE_KEY || "";
   const turnstileSecretKey = process.env.TURNSTILE_SECRET_KEY || "";
-  if (Boolean(turnstileSiteKey) !== Boolean(turnstileSecretKey)) {
-    throw new Error("Turnstile site and secret keys must either both be configured or both be omitted");
+  if (
+    turnstileEnabled === "true" &&
+    (!turnstileSiteKey || !turnstileSecretKey)
+  ) {
+    throw new Error("Turnstile is enabled but its site key or secret is missing");
+  }
+  if (
+    turnstileEnabled === "false" &&
+    (turnstileSiteKey || turnstileSecretKey)
+  ) {
+    throw new Error("Turnstile keys are configured while TURNSTILE_ENABLED is false");
+  }
+  const endpoint = process.env.APPWRITE_FUNCTION_API_ENDPOINT;
+  const projectId = process.env.APPWRITE_FUNCTION_PROJECT_ID;
+  const functionKey = req.headers["x-appwrite-key"];
+  if (!endpoint || !projectId || !functionKey) {
+    throw new Error("Appwrite Function runtime authentication is unavailable");
   }
   const client = new Client()
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(endpoint)
+    .setProject(projectId)
+    .setKey(functionKey);
   return {
     tablesDB: new TablesDB(client),
     databaseId: process.env.APPWRITE_DATABASE_ID,
     tableId: process.env.APPWRITE_BOOKINGS_TABLE_ID,
-    turnstileSiteKey,
+    turnstileEnabled: turnstileEnabled === "true",
     turnstileSecretKey,
   };
 }
@@ -200,10 +216,10 @@ export default async ({ req, res, error }) => {
       tablesDB,
       databaseId,
       tableId,
-      turnstileSiteKey,
+      turnstileEnabled,
       turnstileSecretKey,
-    } = getConfig();
-    if (turnstileSiteKey) {
+    } = getConfig(req);
+    if (turnstileEnabled) {
       const captchaValid = await verifyTurnstile(
         body.turnstileToken,
         req.headers["x-appwrite-client-ip"],
@@ -213,7 +229,7 @@ export default async ({ req, res, error }) => {
         return json(res, { error: "Security verification failed. Please try again.", code: 400 }, 400, origin);
       }
     } else if (body.turnstileToken) {
-      return json(res, { error: "Turnstile is not enabled on the booking service.", code: 400 }, 400, origin);
+      return json(res, { error: "Turnstile is disabled on the booking service.", code: 503 }, 503, origin);
     }
 
     const dayStart = new Date(`${body.date}T00:00:00+05:30`);
@@ -227,6 +243,7 @@ export default async ({ req, res, error }) => {
         Query.lessThan("startsAt", dayEnd.toISOString()),
         Query.limit(100),
       ],
+      total: false,
       ttl: 0,
     });
     const overlaps = existing.rows.some((booking) =>
@@ -260,7 +277,20 @@ export default async ({ req, res, error }) => {
       });
     } catch (writeError) {
       if (Number(writeError.code) === 409) {
-        return json(res, { error: "That time was just booked. Please choose another.", code: 409 }, 409, origin);
+        const sameSlot = await tablesDB.listRows({
+          databaseId,
+          tableId,
+          queries: [
+            Query.equal("slotKey", slotKey),
+            Query.equal("status", "confirmed"),
+            Query.limit(1),
+          ],
+          total: false,
+          ttl: 0,
+        });
+        if (sameSlot.rows.length > 0) {
+          return json(res, { error: "That time was just booked. Please choose another.", code: 409 }, 409, origin);
+        }
       }
       throw writeError;
     }

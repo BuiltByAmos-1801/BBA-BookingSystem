@@ -55,20 +55,23 @@ function getRangeDate() {
   return new Date(Date.UTC(year, month - 1, day + 30));
 }
 
-function getConfig() {
+function getConfig(req) {
   const names = [
-    "APPWRITE_ENDPOINT",
-    "APPWRITE_PROJECT_ID",
-    "APPWRITE_API_KEY",
     "APPWRITE_DATABASE_ID",
     "APPWRITE_BOOKINGS_TABLE_ID",
   ];
   const missing = names.filter((name) => !process.env[name]);
   if (missing.length) throw new Error(`Missing Function environment variables: ${missing.join(", ")}`);
+  const endpoint = process.env.APPWRITE_FUNCTION_API_ENDPOINT;
+  const projectId = process.env.APPWRITE_FUNCTION_PROJECT_ID;
+  const functionKey = req.headers["x-appwrite-key"];
+  if (!endpoint || !projectId || !functionKey) {
+    throw new Error("Appwrite Function runtime authentication is unavailable");
+  }
   const client = new Client()
-    .setEndpoint(process.env.APPWRITE_ENDPOINT)
-    .setProject(process.env.APPWRITE_PROJECT_ID)
-    .setKey(process.env.APPWRITE_API_KEY);
+    .setEndpoint(endpoint)
+    .setProject(projectId)
+    .setKey(functionKey);
   return {
     tablesDB: new TablesDB(client),
     databaseId: process.env.APPWRITE_DATABASE_ID,
@@ -105,7 +108,7 @@ export default async ({ req, res, error }) => {
 
     const dateStart = new Date(`${body.date}T00:00:00+05:30`);
     const dateEnd = new Date(dateStart.getTime() + 24 * 60 * 60 * 1000);
-    const { tablesDB, databaseId, tableId } = getConfig();
+    const { tablesDB, databaseId, tableId } = getConfig(req);
     const result = await tablesDB.listRows({
       databaseId,
       tableId,
@@ -115,12 +118,11 @@ export default async ({ req, res, error }) => {
         Query.lessThan("startsAt", dateEnd.toISOString()),
         Query.limit(100),
       ],
+      total: false,
       ttl: 0,
     });
 
-    const occupied = new Set(
-      result.rows.map((booking) => new Date(booking.startsAt).getTime()),
-    );
+    const occupiedRows = result.rows;
     const now = Date.now();
     const slots = [];
     for (let minute = DAY_START_MINUTES; minute < DAY_END_MINUTES; minute += SLOT_MINUTES) {
@@ -129,7 +131,12 @@ export default async ({ req, res, error }) => {
       const time = `${hour}:${mins}`;
       const startsAt = new Date(`${body.date}T${time}:00+05:30`);
       const startMs = startsAt.getTime();
-      if (startMs < now + MIN_NOTICE_MS || occupied.has(startMs)) continue;
+      const endMs = startMs + SLOT_MINUTES * 60 * 1000;
+      const isOccupied = occupiedRows.some((booking) =>
+        new Date(booking.startsAt).getTime() < endMs &&
+        new Date(booking.endsAt).getTime() > startMs,
+      );
+      if (startMs < now + MIN_NOTICE_MS || isOccupied) continue;
       slots.push({ time, startsAt: startsAt.toISOString() });
     }
 
