@@ -127,8 +127,168 @@
             "name": "bookings",
             "enabled": true,
             "rowSecurity": false,
-            "columns": [],
-            "indexes": []
+            "columns": [
+                {
+                    "key": "customerName",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 120,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "customerEmail",
+                    "type": "string",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "format": "email"
+                },
+                {
+                    "key": "customerPhone",
+                    "type": "varchar",
+                    "required": false,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "businessName",
+                    "type": "varchar",
+                    "required": false,
+                    "array": false,
+                    "size": 120,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "projectBrief",
+                    "type": "text",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "service",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "startsAt",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "endsAt",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                },
+                {
+                    "key": "timezone",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "status",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 16,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "reference",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "slotKey",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "createdAt",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "unique_slot_key",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "slotKey"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "unique_booking_reference",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "reference"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "status_starts_at",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "status",
+                        "startsAt"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "starts_at",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "startsAt"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "ends_at",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "endsAt"
+                    ],
+                    "orders": []
+                }
+            ]
         }
     ]
 }

@@ -120,9 +120,15 @@ function getConfig(req) {
 }
 
 function readBody(req) {
-  if (req.bodyJson && typeof req.bodyJson === "object") return req.bodyJson;
-  if (typeof req.bodyText === "string") return JSON.parse(req.bodyText);
-  throw new Error("Invalid request body");
+  const body = req.bodyJson && typeof req.bodyJson === "object"
+    ? req.bodyJson
+    : typeof req.bodyText === "string"
+      ? JSON.parse(req.bodyText)
+      : null;
+  if (!body || typeof body !== "object" || Array.isArray(body)) {
+    throw new Error("Invalid request body");
+  }
+  return body;
 }
 
 function validateCustomer(body) {
