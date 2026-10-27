@@ -1,4 +1,4 @@
-import { requestAvailableSlots, submitBooking } from "../lib/appwrite.js";
+import { requestAvailableSlots, requestBookingConfig, submitBooking } from "../lib/appwrite.js";
 
 export const SERVICES = [
   {
@@ -29,6 +29,10 @@ export const SERVICES = [
 
 export function getAvailableSlots(date) {
   return requestAvailableSlots(date);
+}
+
+export function getBookingConfig() {
+  return requestBookingConfig();
 }
 
 export function createBooking(payload) {

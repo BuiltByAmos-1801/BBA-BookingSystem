@@ -15,7 +15,17 @@ function parseDateKey(value) {
   return new Date(Date.UTC(year, month - 1, day));
 }
 
-export default function BookingCalendar({ selectedDate, onSelect, minDate, maxDate, children }) {
+export default function BookingCalendar({
+  selectedDate,
+  onSelect,
+  minDate,
+  maxDate,
+  timezone = "Asia/Kolkata",
+  availableWeekdays = [1, 2, 3, 4, 5, 6],
+  specialDates = [],
+  blockedDates = [],
+  children,
+}) {
   const [displayMonth, setDisplayMonth] = useState(() => {
     const anchor = parseDateKey(selectedDate || minDate);
     return new Date(Date.UTC(anchor.getUTCFullYear(), anchor.getUTCMonth(), 1));
@@ -77,7 +87,7 @@ export default function BookingCalendar({ selectedDate, onSelect, minDate, maxDa
                 onClick={() => setDisplayMonth(new Date(Date.UTC(year, month + 1, 1)))}
               >→</button>
             </div>
-            <span className="timezone-pill">IST · UTC+5:30</span>
+            <span className="timezone-pill">{timezone}</span>
           </div>
           <div className="calendar-grid" role="group" aria-label="Select a booking date">
             {DAY_LABELS.map((day) => (
@@ -91,7 +101,8 @@ export default function BookingCalendar({ selectedDate, onSelect, minDate, maxDa
               const disabled =
                 date < earliest ||
                 date > latest ||
-                weekday === 0;
+                blockedDates.includes(key) ||
+                (!availableWeekdays.includes(weekday) && !specialDates.includes(key));
               return (
                 <button
                   className={`calendar-date${selectedDate === key ? " is-selected" : ""}`}
@@ -114,7 +125,7 @@ export default function BookingCalendar({ selectedDate, onSelect, minDate, maxDa
           </div>
           <div className="calendar-legend">
             <span><i className="legend-dot" /> Available weekdays</span>
-            <span>Sunday unavailable</span>
+            <span>{availableWeekdays.length} working days / week</span>
           </div>
         </div>
         <div className="slots-panel" aria-live="polite">
@@ -122,11 +133,11 @@ export default function BookingCalendar({ selectedDate, onSelect, minDate, maxDa
             <div className="slot-panel-heading">
               <p className="eyebrow">AVAILABLE TIMES</p>
               <h3>
-                {new Date(`${selectedDate}T12:00:00+05:30`).toLocaleDateString("en-IN", {
+                {new Date(`${selectedDate}T12:00:00Z`).toLocaleDateString("en-IN", {
                   weekday: "long",
                   day: "numeric",
                   month: "long",
-                  timeZone: "Asia/Kolkata",
+                  timeZone: timezone,
                 })}
               </h3>
             </div>

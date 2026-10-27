@@ -1,0 +1,621 @@
+.admin-layout {
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 248px minmax(0, 1fr);
+  background: #f7f6f2;
+}
+
+.admin-sidebar {
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding: 28px 20px;
+  border-right: 1px solid var(--line);
+  background: var(--white);
+}
+
+.admin-brand {
+  display: flex;
+  flex-direction: column;
+  gap: 5px;
+  text-decoration: none;
+  font: 700 14px var(--heading);
+  letter-spacing: .12em;
+}
+
+.admin-brand small {
+  color: var(--muted);
+  font: 9px var(--mono);
+  letter-spacing: .1em;
+}
+
+.admin-nav {
+  display: grid;
+  gap: 6px;
+  margin-top: 52px;
+}
+
+.admin-nav button {
+  border: 0;
+  border-left: 2px solid transparent;
+  padding: 12px 13px;
+  text-align: left;
+  color: #555750;
+  background: transparent;
+  cursor: pointer;
+  font-size: 13px;
+}
+
+.admin-nav button:hover,
+.admin-nav button.is-active {
+  color: var(--ink);
+  background: #f4f2ed;
+  border-left-color: var(--accent);
+}
+
+.admin-sidebar-bottom {
+  display: grid;
+  gap: 12px;
+  margin-top: auto;
+  padding-top: 28px;
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.admin-main {
+  width: min(100%, 1440px);
+  padding: 38px clamp(20px, 4vw, 58px) 70px;
+}
+
+.admin-topbar,
+.admin-panel-heading,
+.admin-booking-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 18px;
+}
+
+.admin-topbar {
+  margin-bottom: 30px;
+}
+
+.admin-topbar h1,
+.admin-login-card h1 {
+  margin: 0;
+  font: 600 clamp(25px, 4vw, 34px)/1.2 var(--heading);
+  letter-spacing: -.04em;
+}
+
+.admin-eyebrow {
+  margin: 0 0 8px;
+  color: #8a735f;
+  font: 9px var(--mono);
+  letter-spacing: .12em;
+  text-transform: uppercase;
+}
+
+.admin-muted {
+  color: var(--muted);
+  font-size: 12px;
+  line-height: 1.65;
+}
+
+.admin-stats {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 15px;
+  margin-bottom: 20px;
+}
+
+.admin-stat,
+.admin-panel,
+.admin-booking-card {
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.admin-stat {
+  display: grid;
+  gap: 11px;
+  padding: 22px;
+}
+
+.admin-stat span {
+  color: var(--muted);
+  font-size: 11px;
+}
+
+.admin-stat strong {
+  font: 600 32px var(--heading);
+}
+
+.admin-stat small {
+  color: #999a94;
+  font-size: 10px;
+}
+
+.admin-panel {
+  padding: clamp(18px, 3vw, 28px);
+}
+
+.admin-panel h2 {
+  margin: 0 0 10px;
+  font: 600 18px var(--heading);
+}
+
+.admin-panel-heading {
+  margin-bottom: 20px;
+}
+
+.admin-panel-heading h2 {
+  margin: 0;
+}
+
+.admin-panel-heading .admin-muted {
+  margin: 6px 0 0;
+}
+
+.admin-booking-list {
+  display: grid;
+  gap: 12px;
+}
+
+.admin-booking-card {
+  padding: 19px;
+}
+
+.admin-booking-heading {
+  align-items: flex-start;
+}
+
+.admin-booking-heading h3 {
+  margin: 0;
+  font: 600 16px var(--heading);
+}
+
+.admin-booking-heading .admin-muted {
+  margin: 5px 0 0;
+}
+
+.admin-status {
+  white-space: nowrap;
+  padding: 6px 9px;
+  border: 1px solid #e1dfd7;
+  color: #64645d;
+  font: 9px var(--mono);
+  text-transform: uppercase;
+}
+
+.admin-status.status-confirmed {
+  border-color: #cbd9c3;
+  color: #536844;
+  background: #f1f5ee;
+}
+
+.admin-status.status-pending {
+  border-color: #ecd8ab;
+  color: #856833;
+  background: #fbf6e8;
+}
+
+.admin-status.status-cancelled {
+  border-color: #e7c6c1;
+  color: #965248;
+  background: #fbf1ef;
+}
+
+.admin-booking-details {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 13px 20px;
+  margin: 20px 0;
+}
+
+.admin-booking-details div {
+  min-width: 0;
+}
+
+.admin-booking-details dt {
+  margin-bottom: 4px;
+  color: #92938e;
+  font-size: 10px;
+}
+
+.admin-booking-details dd {
+  margin: 0;
+  overflow-wrap: anywhere;
+  font-size: 12px;
+}
+
+.admin-booking-details a {
+  text-decoration-color: #c4b8aa;
+  text-underline-offset: 3px;
+}
+
+.admin-booking-details .admin-brief {
+  grid-column: 1 / -1;
+}
+
+.admin-card-actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  border-top: 1px solid #eeede8;
+  padding-top: 14px;
+}
+
+.admin-button {
+  min-height: 38px;
+  border: 1px solid #d8d7d0;
+  padding: 0 13px;
+  background: transparent;
+  color: var(--ink);
+  cursor: pointer;
+  font-size: 11px;
+}
+
+.admin-button:hover:not(:disabled) {
+  border-color: #8b725e;
+  background: #f8f6f1;
+}
+
+.admin-button:disabled {
+  opacity: .6;
+  cursor: wait;
+}
+
+.admin-button-primary {
+  border-color: #292b28;
+  background: #292b28;
+  color: var(--white);
+}
+
+.admin-button-primary:hover:not(:disabled) {
+  background: #41443e;
+  color: white;
+}
+
+.admin-button-danger {
+  border-color: #dfc5c0;
+  color: #8c473d;
+}
+
+.admin-alert,
+.admin-success {
+  margin: 0 0 18px;
+  padding: 12px 14px;
+  border: 1px solid #e5c4bf;
+  color: #87493f;
+  background: #fbefec;
+  font-size: 12px;
+  line-height: 1.6;
+}
+
+.admin-success {
+  border-color: #cedbc7;
+  color: #526647;
+  background: #f0f5ed;
+}
+
+.admin-alert code {
+  font-family: var(--mono);
+}
+
+.admin-empty {
+  padding: 22px 0 5px;
+  color: var(--muted);
+  font-size: 12px;
+}
+
+.admin-filter-form,
+.admin-settings-grid,
+.admin-exception-form {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 14px;
+  margin: 20px 0;
+}
+
+.admin-form,
+.admin-reschedule {
+  display: grid;
+  gap: 16px;
+}
+
+.admin-form label,
+.admin-filter-form label,
+.admin-settings-grid label,
+.admin-exception-form label,
+.admin-reschedule label {
+  display: grid;
+  gap: 7px;
+  color: #555750;
+  font-size: 11px;
+}
+
+.admin-form input,
+.admin-filter-form input,
+.admin-filter-form select,
+.admin-settings-grid input,
+.admin-settings-grid select,
+.admin-exception-form input,
+.admin-exception-form select,
+.admin-reschedule input,
+.admin-reschedule select {
+  width: 100%;
+  min-height: 40px;
+  border: 1px solid #deddd7;
+  border-radius: 0;
+  padding: 9px 10px;
+  background: #fffefa;
+  color: var(--ink);
+  font-size: 12px;
+}
+
+.admin-form input:focus-visible,
+.admin-filter-form input:focus-visible,
+.admin-filter-form select:focus-visible,
+.admin-settings-grid input:focus-visible,
+.admin-settings-grid select:focus-visible,
+.admin-exception-form input:focus-visible,
+.admin-exception-form select:focus-visible,
+.admin-reschedule input:focus-visible,
+.admin-reschedule select:focus-visible {
+  outline: 2px solid #9d6841;
+  outline-offset: 2px;
+}
+
+.admin-settings-grid small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.admin-table-scroll {
+  width: 100%;
+  overflow-x: auto;
+}
+
+.admin-hours-table {
+  width: 100%;
+  min-width: 700px;
+  border-collapse: collapse;
+}
+
+.admin-hours-table th,
+.admin-hours-table td {
+  border-bottom: 1px solid #eeede8;
+  padding: 10px 8px;
+  text-align: left;
+  font-size: 11px;
+}
+
+.admin-hours-table thead th {
+  color: #888981;
+  font: 9px var(--mono);
+}
+
+.admin-hours-table tbody th {
+  font-weight: 500;
+}
+
+.admin-hours-table input[type="time"] {
+  min-height: 34px;
+  border: 1px solid #deddd7;
+  background: #fffefa;
+  padding: 6px;
+  color: var(--ink);
+}
+
+.admin-hours-table input[type="checkbox"] {
+  width: 17px;
+  height: 17px;
+  accent-color: #6d795e;
+}
+
+.admin-exception-form {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  align-items: end;
+}
+
+.admin-exception-form .admin-reason-field {
+  grid-column: span 2;
+}
+
+.admin-exception-list {
+  display: grid;
+  gap: 9px;
+}
+
+.admin-exception {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 15px;
+  padding: 14px 0;
+  border-top: 1px solid #eeede8;
+}
+
+.admin-exception div {
+  display: grid;
+  gap: 5px;
+  font-size: 12px;
+}
+
+.admin-exception small {
+  color: var(--muted);
+  font-size: 10px;
+}
+
+.admin-reschedule {
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin-top: 16px;
+  padding: 15px;
+  background: #f7f6f2;
+}
+
+.admin-reschedule-reason,
+.admin-reschedule .admin-alert,
+.admin-reschedule .admin-muted {
+  grid-column: 1 / -1;
+}
+
+.admin-login-page {
+  min-height: 100vh;
+  display: grid;
+  place-items: center;
+  padding: 24px;
+  background: #f7f6f2;
+}
+
+.admin-login-card {
+  width: min(100%, 430px);
+  padding: 36px;
+  border: 1px solid var(--line);
+  background: var(--white);
+}
+
+.admin-login-card h1 {
+  margin-bottom: 12px;
+}
+
+.admin-login-card>.admin-muted {
+  margin: 0 0 22px;
+}
+
+.admin-login-card>.admin-link {
+  display: inline-block;
+  margin-top: 22px;
+}
+
+.admin-link {
+  color: #79583f;
+  font-size: 11px;
+  text-underline-offset: 3px;
+}
+
+.admin-login-card .admin-button {
+  width: 100%;
+}
+
+.admin-loading {
+  padding: 50px;
+  color: var(--muted);
+  text-align: center;
+}
+
+@media (max-width: 900px) {
+  .admin-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-sidebar {
+    min-height: 0;
+    padding: 15px 20px;
+    border-right: 0;
+    border-bottom: 1px solid var(--line);
+  }
+
+  .admin-nav {
+    display: flex;
+    overflow-x: auto;
+    margin-top: 17px;
+  }
+
+  .admin-nav button {
+    flex: 0 0 auto;
+    border-left: 0;
+    border-bottom: 2px solid transparent;
+  }
+
+  .admin-nav button.is-active {
+    border-bottom-color: var(--accent);
+  }
+
+  .admin-sidebar-bottom {
+    grid-template-columns: 1fr auto auto;
+    align-items: center;
+    margin-top: 15px;
+    padding-top: 12px;
+    border-top: 1px solid #eeede8;
+  }
+
+  .admin-main {
+    padding-top: 25px;
+  }
+}
+
+@media (max-width: 600px) {
+  .admin-main {
+    padding: 21px 14px 45px;
+  }
+
+  .admin-topbar {
+    align-items: flex-end;
+  }
+
+  .admin-stats {
+    grid-template-columns: 1fr;
+    gap: 9px;
+  }
+
+  .admin-stat {
+    grid-template-columns: 1fr auto;
+    gap: 5px 12px;
+    padding: 14px;
+  }
+
+  .admin-stat strong {
+    grid-column: 2;
+    grid-row: 1 / span 2;
+    align-self: center;
+  }
+
+  .admin-stat small {
+    grid-column: 1;
+  }
+
+  .admin-booking-heading {
+    align-items: flex-start;
+  }
+
+  .admin-booking-details {
+    grid-template-columns: 1fr;
+    gap: 11px;
+  }
+
+  .admin-booking-details .admin-brief {
+    grid-column: auto;
+  }
+
+  .admin-filter-form,
+  .admin-settings-grid,
+  .admin-exception-form,
+  .admin-reschedule {
+    grid-template-columns: 1fr;
+  }
+
+  .admin-exception-form .admin-reason-field,
+  .admin-reschedule-reason,
+  .admin-reschedule .admin-alert,
+  .admin-reschedule .admin-muted {
+    grid-column: auto;
+  }
+
+  .admin-panel-heading {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .admin-sidebar-bottom {
+    grid-template-columns: 1fr auto;
+  }
+
+  .admin-sidebar-bottom .admin-link {
+    grid-column: 1 / -1;
+  }
+
+  .admin-login-card {
+    padding: 26px 21px;
+  }
+}

@@ -7,8 +7,9 @@ import Header from "./components/Header.jsx";
 import ServiceSelector from "./components/ServiceSelector.jsx";
 import TimeSlotPicker from "./components/TimeSlotPicker.jsx";
 import TurnstileWidget from "./components/TurnstileWidget.jsx";
-import { createBooking, getAvailableSlots } from "./services/bookingService.js";
+import { createBooking, getAvailableSlots, getBookingConfig } from "./services/bookingService.js";
 import { missingConfig } from "./lib/appwrite.js";
+import AdminApp from "./admin/AdminApp.jsx";
 
 const EMPTY_CUSTOMER = {
   customerName: "",
@@ -18,22 +19,27 @@ const EMPTY_CUSTOMER = {
   projectBrief: "",
 };
 
-function istDateString(date) {
+function localDateString(date, timezone) {
   return new Intl.DateTimeFormat("en-CA", {
-    timeZone: "Asia/Kolkata",
+    timeZone: timezone,
     year: "numeric",
     month: "2-digit",
     day: "2-digit",
   }).format(date);
 }
 
-function shiftDate(dateString, days) {
+function shiftDate(dateString, days, timezone) {
   const [year, month, day] = dateString.split("-").map(Number);
   const date = new Date(Date.UTC(year, month - 1, day + days));
-  return istDateString(date);
+  return localDateString(date, timezone);
 }
 
 export default function App() {
+  if (window.location.pathname.startsWith("/admin")) return <AdminApp />;
+  return <BookingApp />;
+}
+
+function BookingApp() {
   const [service, setService] = useState("");
   const [selectedDate, setSelectedDate] = useState("");
   const [selectedTime, setSelectedTime] = useState("");
@@ -46,14 +52,35 @@ export default function App() {
   const [turnstileToken, setTurnstileToken] = useState("");
   const [turnstileResetKey, setTurnstileResetKey] = useState(0);
   const [confirmedBooking, setConfirmedBooking] = useState(null);
-  const [today, setToday] = useState(() => istDateString(new Date()));
-  const maxDate = useMemo(() => shiftDate(today, 30), [today]);
+  const [bookingConfig, setBookingConfig] = useState(null);
+  const [bookingConfigError, setBookingConfigError] = useState("");
+  const timezone = bookingConfig?.timezone || "Asia/Kolkata";
+  const maximumAdvanceDays = bookingConfig?.maximumAdvanceDays || 30;
+  const [today, setToday] = useState(() => localDateString(new Date(), timezone));
+  const maxDate = useMemo(
+    () => shiftDate(today, maximumAdvanceDays, timezone),
+    [today, maximumAdvanceDays, timezone],
+  );
   const turnstileSiteKey = import.meta.env.VITE_TURNSTILE_SITE_KEY;
 
   useEffect(() => {
-    const timer = window.setInterval(() => setToday(istDateString(new Date())), 60_000);
-    return () => window.clearInterval(timer);
-  }, []);
+    let active = true;
+    getBookingConfig()
+      .then((config) => {
+        if (active) {
+          setBookingConfig(config);
+          setToday(localDateString(new Date(), config.timezone));
+        }
+      })
+      .catch((error) => {
+        if (active) setBookingConfigError(error.message || "Booking schedule settings could not be loaded.");
+      });
+    const timer = window.setInterval(() => setToday(localDateString(new Date(), timezone)), 60_000);
+    return () => {
+      active = false;
+      window.clearInterval(timer);
+    };
+  }, [timezone]);
 
   useEffect(() => {
     if (!selectedDate) return undefined;
@@ -104,7 +131,7 @@ export default function App() {
         service,
         date: selectedDate,
         time: selectedTime,
-        timezone: "Asia/Kolkata",
+        timezone,
         ...(turnstileSiteKey ? { turnstileToken } : {}),
       });
       setConfirmedBooking(result.booking);
@@ -136,6 +163,7 @@ export default function App() {
         <Header />
         <ConfirmationScreen
           booking={confirmedBooking}
+          duration={bookingConfig?.slotDuration || 30}
           onStartOver={() => {
             setConfirmedBooking(null);
             setService("");
@@ -157,13 +185,13 @@ export default function App() {
             <p className="eyebrow"><span className="status-dot" /> FREE INTRODUCTORY CONSULTATION</p>
             <h1>Good things start<br />with a conversation<span>.</span></h1>
             <p className="hero-description">
-              Book a free 30-minute introductory consultation. Tell us what you’re building,
+              Book a free {bookingConfig?.slotDuration || 30}-minute introductory consultation. Tell us what you’re building,
               and we’ll discuss the right next step for your business.
             </p>
             <div className="hero-meta">
-              <span><i aria-hidden="true">◷</i> 30 minutes</span>
-              <span><i aria-hidden="true">⌖</i> India Standard Time</span>
-              <span><i aria-hidden="true">↗</i> Next 30 days</span>
+              <span><i aria-hidden="true">◷</i> {bookingConfig?.slotDuration || 30} minutes</span>
+              <span><i aria-hidden="true">⌖</i> {timezone}</span>
+              <span><i aria-hidden="true">↗</i> Up to {maximumAdvanceDays} days ahead</span>
             </div>
           </div>
           <div className="hero-note">
@@ -179,6 +207,9 @@ export default function App() {
               Booking services are not configured yet. Complete the Appwrite settings in <code>.env.local</code> to enable live availability.
             </div>
           )}
+          {bookingConfigError && (
+            <div className="configuration-notice" role="alert">{bookingConfigError}</div>
+          )}
           <ServiceSelector value={service} onChange={(value) => { setService(value); setBookingError(""); }} />
 
           <BookingCalendar
@@ -186,6 +217,10 @@ export default function App() {
             onSelect={changeDate}
             minDate={today}
             maxDate={maxDate}
+            timezone={timezone}
+            availableWeekdays={bookingConfig?.availableWeekdays || [1, 2, 3, 4, 5, 6]}
+            specialDates={bookingConfig?.specialDates || []}
+            blockedDates={bookingConfig?.blockedDates || []}
           >
             {selectedDate && (
               <TimeSlotPicker
@@ -206,7 +241,13 @@ export default function App() {
               submitting={submitting}
               error={bookingError}
             />
-            <BookingSummary service={service} date={selectedDate} time={selectedTime} />
+            <BookingSummary
+              service={service}
+              date={selectedDate}
+              time={selectedTime}
+              duration={bookingConfig?.slotDuration || 30}
+              timezone={timezone}
+            />
           </div>
           {turnstileSiteKey ? (
             <TurnstileWidget

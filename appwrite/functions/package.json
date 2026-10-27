@@ -1,0 +1,8 @@
+{
+  "name": "built-by-amos-appwrite-functions",
+  "private": true,
+  "type": "module",
+  "dependencies": {
+    "node-appwrite": "^31.0.0"
+  }
+}

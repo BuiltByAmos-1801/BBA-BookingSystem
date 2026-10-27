@@ -48,12 +48,12 @@
     "functions": [
         {
             "$id": "6adfa2fc00132fa712b6",
-            "name": "Available Slots",
+            "name": "Availability + Admin API",
             "runtime": "node-26",
-            "path": "appwrite/functions/available-slots",
+            "path": "appwrite/functions",
             "previewDomainTarget": "region",
             "previewDomainLabel": "availableslots",
-            "entrypoint": "src/main.js",
+            "entrypoint": "available-slots/src/main.js",
             "execute": [
                 "any"
             ],
@@ -62,10 +62,11 @@
             "events": [],
             "schedule": "",
             "interval": 0,
-            "timeout": 15,
+            "timeout": 30,
             "commands": "npm install",
             "scopes": [
-                "rows.read"
+                "rows.read",
+                "rows.write"
             ],
             "installationId": "",
             "providerRepositoryId": "",
@@ -82,10 +83,10 @@
             "$id": "6adfa37500289aeed7bd",
             "name": "Create Booking",
             "runtime": "node-26",
-            "path": "appwrite/functions/create-booking",
+            "path": "appwrite/functions",
             "previewDomainTarget": "region",
             "previewDomainLabel": "create-booking",
-            "entrypoint": "src/main.js",
+            "entrypoint": "create-booking/src/main.js",
             "execute": [
                 "any"
             ],
@@ -239,6 +240,15 @@
                     "array": false,
                     "default": null,
                     "format": ""
+                },
+                {
+                    "key": "cancellationReason",
+                    "type": "varchar",
+                    "required": false,
+                    "array": false,
+                    "size": 500,
+                    "default": null,
+                    "encrypt": false
                 }
             ],
             "indexes": [
@@ -285,6 +295,246 @@
                     "status": "available",
                     "columns": [
                         "endsAt"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "6ae0b5fd00049abd6821",
+            "$permissions": [],
+            "databaseId": "6adfa0090028209ef27e",
+            "name": "weekly-schedule",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "scheduleJson",
+                    "type": "text",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": []
+        },
+        {
+            "$id": "6ae0b5fd000491fce3bb",
+            "$permissions": [],
+            "databaseId": "6adfa0090028209ef27e",
+            "name": "date-exceptions",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "date",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 10,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "type",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 16,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "startTime",
+                    "type": "varchar",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "endTime",
+                    "type": "varchar",
+                    "required": false,
+                    "array": false,
+                    "size": 5,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "reason",
+                    "type": "text",
+                    "required": false,
+                    "array": false,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "unique_date",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "date"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "6ae0b5fd00049819919a",
+            "$permissions": [],
+            "databaseId": "6adfa0090028209ef27e",
+            "name": "slot-locks",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "lockKey",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "bookingId",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "unique_lock_key",
+                    "type": "unique",
+                    "status": "available",
+                    "columns": [
+                        "lockKey"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "booking_id",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "bookingId"
+                    ],
+                    "orders": []
+                }
+            ]
+        },
+        {
+            "$id": "6ae0b5fd000483442624",
+            "$permissions": [],
+            "databaseId": "6adfa0090028209ef27e",
+            "name": "booking-audit",
+            "enabled": true,
+            "rowSecurity": false,
+            "columns": [
+                {
+                    "key": "bookingId",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "reference",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "action",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 32,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "fromStatus",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 16,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "toStatus",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 16,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "reason",
+                    "type": "text",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "actorUserId",
+                    "type": "varchar",
+                    "required": true,
+                    "array": false,
+                    "size": 64,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "detailsJson",
+                    "type": "text",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "encrypt": false
+                },
+                {
+                    "key": "createdAt",
+                    "type": "datetime",
+                    "required": true,
+                    "array": false,
+                    "default": null,
+                    "format": ""
+                }
+            ],
+            "indexes": [
+                {
+                    "key": "booking_id",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "bookingId"
+                    ],
+                    "orders": []
+                },
+                {
+                    "key": "created_at",
+                    "type": "key",
+                    "status": "available",
+                    "columns": [
+                        "createdAt"
                     ],
                     "orders": []
                 }
